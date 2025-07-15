@@ -50,6 +50,7 @@ type SpeechRecognitionResponseResult struct {
 	VoiceTextStr string                                `json:"voice_text_str"`
 	WordSize     uint32                                `json:"word_size"`
 	WordList     []SpeechRecognitionResponseResultWord `json:"word_list"`
+	EmotionType  []string                              `json:"emotion_type"`
 }
 
 // SpeechRecognitionResponseResultWord SpeechRecognitionResponseResultWord
@@ -75,24 +76,25 @@ const (
 // SpeechRecognizer is the entry for ASR service
 type SpeechRecognizer struct {
 	//request params
-	AppID             string
-	EngineModelType   string
-	VoiceFormat       int
-	NeedVad           int
-	HotwordId         string
-	HotwordList       string
-	CustomizationId   string
-	FilterDirty       int
-	FilterModal       int
-	FilterPunc        int
-	ConvertNumMode    int
-	WordInfo          int
-	VadSilenceTime    int
-	ReinforceHotword  int
-	NoiseThreshold    float64
-	FilterEmptyResult int
-	MaxSpeakTime      int
-	ReplaceTextId     string
+	AppID              string
+	EngineModelType    string
+	VoiceFormat        int
+	NeedVad            int
+	HotwordId          string
+	HotwordList        string
+	CustomizationId    string
+	FilterDirty        int
+	FilterModal        int
+	FilterPunc         int
+	ConvertNumMode     int
+	WordInfo           int
+	VadSilenceTime     int
+	ReinforceHotword   int
+	NoiseThreshold     float64
+	FilterEmptyResult  int
+	MaxSpeakTime       int
+	ReplaceTextId      string
+	EmotionRecognition int
 
 	Credential *common.Credential
 	//listener
@@ -360,7 +362,7 @@ func (recognizer *SpeechRecognizer) receive() {
 			break
 		}
 
-		//fmt.Printf("%s", data)
+		// fmt.Printf("\n%s\n\n", data)
 		msg := SpeechRecognitionResponse{}
 		err = json.Unmarshal(data, &msg)
 		if err != nil {
@@ -454,6 +456,9 @@ func (recognizer *SpeechRecognizer) buildURL(voiceID string) string {
 	}
 	if recognizer.NoiseThreshold != 0 {
 		queryMap["noise_threshold"] = strconv.FormatFloat(recognizer.NoiseThreshold, 'f', 3, 64)
+	}
+	if recognizer.EmotionRecognition > 0 {
+		queryMap["emotion_recognition"] = strconv.FormatInt(int64(recognizer.EmotionRecognition), 10)
 	}
 
 	var keys []string
